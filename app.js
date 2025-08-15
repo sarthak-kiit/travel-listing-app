@@ -97,6 +97,11 @@ async function startServer() {
             res.status(statusCode).render("error.ejs", { message });
         });
 
+        app.get("/", (req, res) => {
+           res.send("Server is running 🚀");
+        });
+
+
         // ===== Start server after DB connection =====
         app.listen(6060, () => {
             console.log("🚀 Server is listening on port 6060");
