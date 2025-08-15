@@ -83,12 +83,6 @@ async function startServer() {
             next();
         });
 
-        // ===== Default route: redirect all unmatched URLs to /listings =====
-        app.get("*", (req, res) => {
-           res.redirect("/listings");
-        });
-
-
         // ===== Routes =====
         app.use("/listings", listingRouter);
         app.use("/listings/:id/reviews", reviewRouter);
