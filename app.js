@@ -83,6 +83,12 @@ async function startServer() {
             next();
         });
 
+        // app.js (after mounting routers)
+        app.get("/", (req, res) => {
+          res.redirect("/listings"); // or res.send("Server is running 🚀")
+        });
+
+
         // ===== Routes =====
         app.use("/listings", listingRouter);
         app.use("/listings/:id/reviews", reviewRouter);
