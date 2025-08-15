@@ -1,0 +1,123 @@
+<% layout("layouts/boilerplate") %>
+
+<body>
+  <div class="container mt-2"> <!-- container -->
+    <div class="row"> <!-- row -->
+      <div class="col-md-8 offset-md-2"> <!-- main column -->
+
+        <!-- Listing Section -->
+        <h2><%= listing.title %></h2>
+        <div class="card mb-3" style="width: 100%;">
+          <% if (listing.image?.url) { %>
+            <img src="<%= listing.image.url %>" class="card-img-top" alt="listing_image"
+              style="width: 100%; max-width: 400px; height: 280px; object-fit: cover; margin: 0 auto; display: block;">
+          <% } %>
+          <div class="card-body">
+            <p class="card-text">
+              Owned by: <i><%= listing.owner.username %></i> <br>
+              <%= listing.description %> <br>
+              ₹<%= listing.price != null ? listing.price.toLocaleString("en-IN") : "N/A" %>/night <br>
+              <%= listing.location %> <br>
+              <%= listing.country %>
+            </p>
+          </div>
+        </div>
+
+        <!-- Edit/Delete Buttons -->
+        <div class="d-flex gap-4 mt-3">
+          <a class="btn btn-danger" href="/listings/<%= listing._id %>/edit">Edit Listing</a>
+          <form method="POST" action="/listings/<%= listing._id %>?_method=DELETE">
+            <button class="btn btn-dark">Delete Listing</button>
+          </form>
+        </div>
+                
+        <!-- Review Form Section -->
+        <div class="review-form mt-4">
+          <hr>
+          <% if (currUser) { %>
+            <h4>Leave a Review</h4>
+            <form method="POST" action="/listings/<%= listing._id %>/reviews" class="needs-validation" novalidate>
+              <div class="mb-2">
+                <label class="form-label">Rating</label>
+                <div class="star-rating">
+                  <% for (let i = 5; i >= 1; i--) { %>
+                    <input type="radio" name="review[rating]" id="star<%= i %>" value="<%= i %>" required>
+                    <label for="star<%= i %>">&#9733;</label>
+                  <% } %>
+                </div>
+              </div>
+
+              <div class="mb-2">
+                <label for="comment" class="form-label">Comment</label>
+                <textarea name="review[comment]" id="comment" rows="4" class="form-control" required></textarea>
+                <div class="invalid-feedback">Please add comment</div>
+              </div>
+
+              <button class="btn btn-outline-dark mt-3">Submit</button>
+            </form>
+          <% } else { %>
+            <div class="alert alert-info mt-3">
+              <strong>Login required</strong> to leave a review.
+            </div>
+          <% } %>
+        </div>
+
+        <!-- All Reviews Section -->
+        <div class="all-reviews mt-4">
+          <hr>
+          <p><b>All Reviews:</b></p>
+
+          <% if (listing.reviews.length === 0) { %>
+            <p class="text-muted">No reviews yet. Be the first to add one!</p>
+          <% } %>
+
+          <div class="row">
+            <% for (let review of listing.reviews) { %>
+              <div class="col-sm-12 col-md-5 mb-4 ms-md-3">
+                <div class="border rounded p-3 bg-light overflow-hidden text-wrap">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="mb-0">@<%= review.author.username %></h6>
+                    <form method="POST" action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE">
+                      <button class="btn btn-sm btn-link text-danger p-0">Delete</button>
+                    </form>
+                  </div>
+
+                  <!-- Comment text -->
+                  <p class="mb-2 text-break"><%= review.comment %></p>
+
+                  <!-- Star rating -->
+                  <div class="d-flex flex-wrap">
+                    <% for (let i = 0; i < review.rating; i++) { %>
+                      <i class="fa fa-star text-warning me-1"></i>
+                    <% } %>
+                    <% for (let i = review.rating; i < 5; i++) { %>
+                      <i class="fa fa-star text-secondary me-1"></i>
+                    <% } %>
+                  </div>
+                </div>
+              </div>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- map-section -->
+        <div class="map mt-4 mb-4">
+          <hr>
+          <h3>Where you'll be</h3>
+          <div id="map"></div>
+        </div> 
+
+      </div> <!-- /col-md-8 -->
+    </div> <!-- /row -->
+  </div> <!-- /container -->
+</body>
+
+<script>
+  let mapToken = "<%= process.env.MAP_TOKEN %>"
+   let coordinates = <%- JSON.stringify(
+    listing && listing.geometry && listing.geometry.coordinates 
+      ? listing.geometry.coordinates 
+      : [77.1025, 28.7041]
+  ) %>;
+</script>
+
