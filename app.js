@@ -83,6 +83,12 @@ async function startServer() {
             next();
         });
 
+        // ===== Default route: redirect all unmatched URLs to /listings =====
+        app.get("*", (req, res) => {
+           res.redirect("/listings");
+        });
+
+
         // ===== Routes =====
         app.use("/listings", listingRouter);
         app.use("/listings/:id/reviews", reviewRouter);
@@ -96,11 +102,6 @@ async function startServer() {
             let { statusCode = 500, message = "Something went wrong!" } = err;
             res.status(statusCode).render("error.ejs", { message });
         });
-
-        app.get("/", (req, res) => {
-           res.send("Server is running 🚀");
-        });
-
 
         // ===== Start server after DB connection =====
         app.listen(6060, () => {
